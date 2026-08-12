@@ -1,0 +1,7 @@
+# Claude Code Projekt-Konfiguration (maschinenspezifisch, z.B. lokale Pfade
+# für den Test-Server) - nicht Teil des eigentlichen Spiels.
+.claude/
+
+# Betriebssystem-/Editor-Dateien
+.DS_Store
+Thumbs.db

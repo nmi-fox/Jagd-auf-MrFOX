@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jagd auf MrFOX</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================================================ -->
+  <!-- Die App besteht aus 4 "Screens" (Bildschirmen). Immer nur     -->
+  <!-- einer davon hat die Klasse "active" und ist sichtbar. Der     -->
+  <!-- Wechsel zwischen den Screens passiert komplett per JavaScript -->
+  <!-- (siehe js/ui.js) - die Seite wird dabei nie neu geladen.      -->
+  <!-- ============================================================ -->
+
+  <!-- 1) STARTSEITE -->
+  <section id="screen-start" class="screen active">
+    <div class="start-content">
+      <h1 class="game-title">Jagd auf MrFOX</h1>
+
+      <div class="hero">
+        <!-- Reserviert im normalen Seitenfluss denselben Platz, den der
+             (jetzt fest positionierte) Fuchs früher eingenommen hat, damit
+             der "Anleitung"-Button nicht nach oben rutscht. -->
+        <div class="fox-stage-spacer" aria-hidden="true"></div>
+
+        <button id="btn-play" class="btn btn-primary" type="button">Spiel starten</button>
+
+        <!-- Alles hier drin ist reine Deko und liegt fest ("position: fixed")
+             über der ganzen Seite - Baum, Jäger, Fuchs und die Punkte auf dem
+             Weg zwischen ihnen. "display: contents" sorgt dafür, dass dieser
+             Wrapper selbst keine eigene Box im Layout erzeugt (die Kinder
+             bleiben aber direkte Geschwister von #btn-play, damit der
+             CSS-Selektor "#btn-play:hover ~ .chase-decor ..." funktioniert). -->
+        <div class="chase-decor" aria-hidden="true">
+          <!-- Baum: steht immer fest am rechten Bildschirmrand. -->
+          <img class="tree-img" src="assets/Baum.svg" alt="">
+
+          <!-- Jäger: steht im Ruhezustand halb hinter dem Baum versteckt und
+               läuft beim Hover nach links, dem Fuchs hinterher (bleibt aber
+               zurück, damit es nicht so aussieht, als würde er ihn fangen). -->
+          <img class="ambush-hunter" src="assets/Jaeger.svg" alt="">
+
+          <!-- Punkte auf dem Weg, den der Fuchs beim Hover nach links läuft.
+               Sie liegen zunächst da (wie im Spiel) und werden beim Hover
+               nacheinander eingesammelt - zeitlich passend dazu, wann der
+               laufende Fuchs (siehe .fox-stage) ungefähr an ihnen vorbeikommt. -->
+          <div class="trail-dots">
+            <span class="trail-dot dot-1"></span>
+            <span class="trail-dot dot-2"></span>
+            <span class="trail-dot dot-3"></span>
+            <span class="trail-dot dot-4"></span>
+            <span class="trail-dot dot-5"></span>
+            <span class="trail-dot dot-6"></span>
+            <span class="trail-dot dot-7"></span>
+          </div>
+
+          <!-- Die beiden Fuchs-Grafiken liegen exakt übereinander im selben
+               Container. Im Ruhezustand steht er zentriert (wie bisher).
+               Beim Hover über den Button blendet er von schlafend zu laufend
+               über UND läuft dabei zum linken Bildschirmrand. -->
+          <div class="fox-stage">
+            <div class="fox-bounce-wrap">
+              <img class="fox-img fox-sleep" src="assets/MrFOX_sleep.svg" alt="MrFOX schläft eingerollt">
+              <img class="fox-img fox-walk" src="assets/MrFOX_walk.svg" alt="MrFOX wacht auf und läuft los">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-instructions" class="btn btn-secondary" type="button">Anleitung</button>
+    </div>
+  </section>
+
+  <!-- 2) ANLEITUNGSSEITE -->
+  <section id="screen-instructions" class="screen">
+    <div class="instructions-content">
+      <div class="instructions-text">
+        <h1>Wie man spielt</h1>
+
+        <h2>Ziel des Spiels</h2>
+        <p>Steuere MrFOX durch das Labyrinth und sammle alle Punkte (die kleinen
+        Kreise) ein - und zwar bevor du alle 3 Leben verloren hast.</p>
+
+        <h2>Steuerung</h2>
+        <p>Am Desktop bewegst du MrFOX mit den <strong>Pfeiltasten</strong> oder
+        mit <strong>W A S D</strong>. Auf Tablet und Smartphone gibt es später ein
+        Steuerkreuz zum Antippen.</p>
+
+        <h2>Die Punkte</h2>
+        <p>Oben im Spiel siehst du einen Zähler ("Punkte: X / Y"). X ist die
+        Anzahl der bereits eingesammelten Punkte, Y die Gesamtzahl im Labyrinth.
+        Sind alle Punkte eingesammelt, ist das Spiel geschafft. In der Mitte
+        läuft außerdem eine Stoppuhr mit, damit du am Ende siehst, wie lange
+        du gebraucht hast.</p>
+
+        <h2>Das Leben-System</h2>
+        <p>MrFOX hat <strong>3 Leben</strong>, die als rote Herzen oben im Spiel
+        angezeigt werden. Berührt dich ein Jäger, geht ein Herz verloren, du
+        wirst an deine Startposition zurückgesetzt und bist für kurze Zeit
+        unverwundbar (zu erkennen am Blinken). Deine gesammelten Punkte bleiben
+        dabei erhalten. Sind alle 3 Herzen leer, ist das Spiel vorbei.</p>
+
+        <h2>Wie sich die Jäger verhalten</h2>
+        <p>Zu Spielbeginn bekommst du ein paar Sekunden Vorsprung, in denen
+        die Jäger noch stillstehen. Danach berechnen sie bei jedem Zug den
+        kürzesten Weg zu dir durchs Labyrinth und folgen ihm meistens -
+        gelegentlich bewegen sie sich aber auch zufällig, damit du eine faire
+        Chance hast, ihnen zu entkommen.</p>
+
+        <h2>Tipps</h2>
+        <p>1. Behalte im Blick, wo sich die Jäger befinden, bevor du dich in eine
+        Sackgasse begibst.<br>
+        2. Nutze die kurze Unverwundbarkeit nach einem Treffer, um dich in
+        Sicherheit zu bringen.</p>
+
+        <div class="instructions-actions">
+          <a id="link-back-start" class="link-back" href="#">← Zurück zur Startseite</a>
+          <button id="btn-start-game" class="btn btn-primary" type="button">Los geht's</button>
+        </div>
+      </div>
+
+      <div class="instructions-image">
+        <img src="assets/MrFOX_walk.svg" alt="MrFOX läuft">
+      </div>
+    </div>
+  </section>
+
+  <!-- 3) SPIELBILDSCHIRM -->
+  <section id="screen-game" class="screen">
+    <div class="game-content">
+      <div class="game-hud">
+        <div id="hearts" class="hearts" aria-label="Verbleibende Leben"></div>
+        <div id="timer" class="timer" aria-label="Gespielte Zeit">00:00</div>
+        <div class="score">Punkte: <span id="score-current">0</span> / <span id="score-total">0</span></div>
+      </div>
+
+      <canvas id="game-canvas"></canvas>
+    </div>
+  </section>
+
+  <!-- 4) ERGEBNISSEITE -->
+  <section id="screen-result" class="screen">
+    <div class="result-content">
+      <div class="result-fox">
+        <img id="result-fox-img" src="assets/MrFOX_walk.svg" alt="MrFOX">
+      </div>
+      <h1 id="result-title"></h1>
+      <p id="result-details"></p>
+      <button id="btn-play-again" class="btn btn-primary" type="button">Nochmal spielen</button>
+    </div>
+  </section>
+
+  <script src="js/maze.js"></script>
+  <script src="js/hunters.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

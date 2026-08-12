@@ -1,0 +1,464 @@
+/* ===================================================================
+   Farbschema als CSS-Variablen - hier zentral anpassbar.
+   =================================================================== */
+:root {
+  --fox-orange: #F0954B;
+  --navy: #365C8A;
+  --cream: #FEEBDD;
+  --anthracite: #4A4A4A;
+  --heart-red: #EC424A;
+  --bg-light: #FFF8F2;
+  --text-color: #2C4A6E;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Verdana, Arial, sans-serif;
+  background: var(--bg-light);
+  color: var(--text-color);
+  min-height: 100vh;
+}
+
+h1, h2 {
+  color: var(--text-color);
+}
+
+/* ===================================================================
+   Screen-Verwaltung: nur der Screen mit der Klasse "active" ist
+   sichtbar. Das Umschalten passiert in js/ui.js.
+   =================================================================== */
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ===================================================================
+   Buttons (gemeinsame Basis für alle Screens)
+   =================================================================== */
+.btn {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(54, 92, 138, 0.25);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: var(--fox-orange);
+  color: var(--cream);
+}
+
+.btn-primary:hover {
+  background: #e8863a;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--navy);
+  border: 2px solid var(--navy);
+}
+
+.btn-secondary:hover {
+  background: var(--navy);
+  color: var(--cream);
+}
+
+.link-back {
+  color: var(--navy);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link-back:hover {
+  text-decoration: underline;
+}
+
+/* ===================================================================
+   1) STARTSEITE
+   =================================================================== */
+.start-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.game-title {
+  font-size: 2.75rem;
+  margin: 0;
+  color: var(--navy);
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Reserviert im normalen Seitenfluss denselben Platz, den der Fuchs
+   (jetzt fest positioniert, siehe .fox-stage) früher eingenommen hat. */
+.fox-stage-spacer {
+  width: 180px;
+  height: 180px;
+}
+
+/* ===================================================================
+   Deko-Ebene auf der Startseite: Baum, Jäger, Fuchs und die Punkte auf
+   dem Weg zwischen ihnen. "display: contents" sorgt dafür, dass dieser
+   Wrapper selbst keine eigene Box im Layout erzeugt - die Kinder bleiben
+   aber direkte Geschwister von #btn-play (wichtig für den Selektor
+   "#btn-play:hover ~ .chase-decor ..." weiter unten).
+
+   Alle vier liegen per "position: fixed" über der ganzen Seite:
+   - Der Baum steht immer fest am rechten Bildschirmrand.
+   - Der Jäger steht im Ruhezustand halb hinter dem Baum versteckt.
+   - Der Fuchs steht im Ruhezustand zentriert über dem Button.
+   - Die Punkte liegen auf dem Weg, den der Fuchs beim Hover abläuft.
+
+   Beim Hover über den Button läuft der Fuchs zum linken Bildschirmrand,
+   der Jäger folgt ihm von rechts (bleibt aber zurück), und die Punkte
+   werden dabei - passend zur Laufzeit - nacheinander "eingesammelt".
+   =================================================================== */
+.chase-decor {
+  display: contents;
+}
+
+.fox-stage {
+  position: fixed;
+  top: 403px;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  transform: translateX(-50%);
+  transition: left 1.5s linear, transform 1.5s linear;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* Eigener innerer Wrapper nur für den Aufwach-Bounce (siehe fox-bounce
+   weiter unten), damit sich diese Skalierung nicht mit der Lauf-Bewegung
+   von .fox-stage (transform: translateX) in die Quere kommt - beide
+   Elemente haben ihr eigenes, unabhängiges "transform". */
+.fox-bounce-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.fox-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.5s ease;
+}
+
+/* MrFOX_sleep.svg zeichnet den Kopf (Ohren/Schnauze) im Verhältnis zum
+   Rest deutlich größer als MrFOX_walk.svg - beim direkten Vergleich der
+   Kopfgrößen wirkte er dadurch spürbar größer. Deshalb hier etwas
+   verkleinert (zentriert per negativem Versatz). */
+.fox-sleep {
+  top: 25%;
+  left: 17.5%;
+  width: 65%;
+  height: 65%;
+  opacity: 1;
+}
+
+/* MrFOX_walk.svg hat ein deutlich breiteres/flacheres Seitenverhältnis als
+   MrFOX_sleep.svg. Bei gleicher Boxgröße würde er dadurch spürbar kleiner
+   wirken als der schlafende Fuchs (schmaler und niedriger) - deshalb wird
+   er hier etwas größer skaliert, damit beide optisch gleich groß wirken.
+   Der negative Versatz (top/left) hält ihn dabei zentriert. */
+.fox-walk {
+  top: -13%;
+  left: -13%;
+  width: 126%;
+  height: 126%;
+  opacity: 0;
+}
+
+.tree-img {
+  position: fixed;
+  top: 320px;
+  right: 16px;
+  height: 240px;
+  width: auto;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.ambush-hunter {
+  position: fixed;
+  top: 410px;
+  right: 108px;
+  height: 150px;
+  width: auto;
+  z-index: 3; /* hinter dem Baum (z-index 4), damit er ihn halb verdeckt */
+  transition: right 1.5s ease-in-out;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------
+   Rückweg: Sobald die Maus den Button verlässt, setzt js/ui.js für die
+   Dauer des Rücklaufs (siehe RETURN_DURATION_MS dort, passend zu den
+   1.5s-Transitions oben) die Klasse "returning" auf .chase-decor. Fuchs
+   und Jäger bleiben dabei gespiegelt und in Lauf-Pose, während sie an
+   ihre Startposition zurücklaufen - und drehen sich erst danach wieder
+   in ihre ursprüngliche Blickrichtung.
+
+   Das lässt sich nicht robust in reinem CSS lösen: eine reine
+   Hover-Transition kennt nur zwei Zustände (gehovert / nicht gehovert)
+   und keinen dritten "auf dem Rückweg"-Zwischenzustand. Daher hier die
+   eine Stelle mit etwas JavaScript.
+   --------------------------------------------------------------------- */
+.chase-decor.returning .fox-sleep {
+  opacity: 0;
+}
+
+.chase-decor.returning .fox-walk {
+  opacity: 1;
+  transform: scaleX(-1);
+}
+
+.chase-decor.returning .ambush-hunter {
+  transform: scaleX(-1);
+}
+
+/* Der Weg aus 7 Punkten, den der Fuchs beim Hover nach links abläuft.
+   Jeder Punkt blendet sich langsam ein und wird exakt in dem Moment
+   "eingesammelt" (siehe @keyframes dot-collect), in dem der Fuchs ihn
+   erreicht - deshalb hat jeder Punkt seine eigene "animation-duration",
+   passend zur (linearen) Laufzeit des Fuchses zu genau dieser Stelle. */
+.trail-dots {
+  position: fixed;
+  top: 528px;
+  left: 0;
+  width: 100vw;
+  height: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Im Ruhezustand unsichtbar (wirkte sonst zu unruhig auf der Startseite) -
+   erscheinen erst beim Hover, siehe @keyframes dot-collect weiter unten. */
+.trail-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--navy);
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.dot-1 { left: 44%; animation-duration: 0.20s; }
+.dot-2 { left: 37%; animation-duration: 0.42s; }
+.dot-3 { left: 30%; animation-duration: 0.65s; }
+.dot-4 { left: 23%; animation-duration: 0.88s; }
+.dot-5 { left: 16%; animation-duration: 1.11s; }
+.dot-6 { left: 10%; animation-duration: 1.30s; }
+.dot-7 { left: 5%;  animation-duration: 1.47s; }
+
+/* Hover-Effekt nur auf Geräten mit echtem Maus-Hover aktivieren
+   (Touch-Variante folgt in einem späteren Schritt). */
+@media (hover: hover) and (pointer: fine) {
+  #btn-play:hover ~ .chase-decor .fox-stage {
+    left: 4%;
+    transform: translateX(0);
+  }
+
+  #btn-play:hover ~ .chase-decor .fox-bounce-wrap {
+    animation: fox-bounce 0.5s ease;
+  }
+
+  #btn-play:hover ~ .chase-decor .fox-sleep {
+    opacity: 0;
+  }
+
+  #btn-play:hover ~ .chase-decor .fox-walk {
+    opacity: 1;
+  }
+
+  /* Der Jäger folgt dem Fuchs nach links, bleibt aber deutlich zurück -
+     er soll ihn nicht "fangen", nur die Verfolgung andeuten. */
+  #btn-play:hover ~ .chase-decor .ambush-hunter {
+    right: 56%;
+  }
+
+  /* Startet für jeden Punkt die Animation - wie lange sie jeweils dauert,
+     legt aber die "animation-duration" der einzelnen .dot-1 bis .dot-7
+     weiter oben fest (nicht hier, sonst würde das die einzelnen Dauern
+     überschreiben). So blendet sich jeder Punkt langsam ein und wird
+     exakt am Ende seiner eigenen Laufzeit eingesammelt - passend dazu,
+     wann der Fuchs an dieser Stelle vorbeikommt. */
+  #btn-play:hover ~ .chase-decor .trail-dot {
+    animation-name: dot-collect;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+}
+
+@keyframes fox-bounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Ein Punkt blendet sich langsam ein, bleibt kurz sichtbar auf dem Weg
+   liegen und wird dann - genau zum Ende seiner individuellen Laufzeit,
+   siehe animation-duration je .dot-N - mit einem kleinen Pop eingesammelt. */
+@keyframes dot-collect {
+  0%   { opacity: 0; transform: scale(0.5); }
+  55%  { opacity: 1; transform: scale(1); }
+  85%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+/* ===================================================================
+   2) ANLEITUNGSSEITE
+   =================================================================== */
+.instructions-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  max-width: 900px;
+  align-items: flex-start;
+}
+
+.instructions-text {
+  flex: 2 1 480px;
+}
+
+.instructions-text h2 {
+  color: var(--navy);
+  margin-top: 1.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.instructions-text p {
+  line-height: 1.5;
+  margin: 0;
+}
+
+.instructions-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.instructions-image {
+  flex: 1 1 160px;
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.instructions-image img {
+  width: 100%;
+  max-width: 220px;
+}
+
+/* ===================================================================
+   3) SPIELBILDSCHIRM
+   =================================================================== */
+.game-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.game-hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  gap: 1.5rem;
+  font-weight: 600;
+}
+
+.hearts {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.hearts svg {
+  width: 28px;
+  height: 28px;
+}
+
+.timer {
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  justify-self: center;
+}
+
+.score {
+  font-size: 1.1rem;
+  justify-self: end;
+}
+
+#game-canvas {
+  background: var(--cream);
+  border: 4px solid var(--navy);
+  border-radius: 8px;
+  display: block;
+}
+
+/* ===================================================================
+   4) ERGEBNISSEITE
+   =================================================================== */
+.result-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.result-fox {
+  width: 220px;
+}
+
+.result-fox img {
+  width: 100%;
+}
+
+#result-title {
+  font-size: 2.25rem;
+  margin: 0;
+}
+
+#result-details {
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
