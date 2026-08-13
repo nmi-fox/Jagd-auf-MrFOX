@@ -464,6 +464,64 @@ h1, h2 {
   max-width: 220px;
 }
 
+/* Sobald der Platz nicht mehr für Text+Fuchs nebeneinander reicht (siehe
+   flex-basis von .instructions-text/.instructions-image weiter oben) und
+   beides umbricht, soll der Fuchs statt ganz unten (hinter "Tipps") ganz
+   oben über der Überschrift "Wie man spielt" stehen. */
+@media (max-width: 711px) {
+  .instructions-image {
+    order: -1;
+  }
+}
+
+/* Text+Illustration nebeneinander innerhalb der Anleitung (analog zum
+   großen Fuchs-Bild rechts neben .instructions-text) - für einzelne
+   Abschnitte, die zusätzlich zum Text eine kleine Grafik bekommen. */
+.instructions-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.instructions-row-text {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.instructions-row-icon {
+  flex: 0 0 auto;
+}
+
+/* Rein dekorative Illustrationen - nutzen bewusst dieselben Klassen wie
+   im echten Spiel (.hearts aus dem HUD, .dpad-btn aus dem Steuerkreuz),
+   damit hier exakt das zu sehen ist, was später im Spiel auch angezeigt
+   wird. Kein "echtes" .dpad (siehe game.js:
+   document.querySelector('.dpad') greift sonst dieses Deko-Element
+   statt das im Spielbildschirm) und <span> statt <button>, damit
+   nichts anklickbar wirkt. */
+.dpad-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(3, 40px);
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.dpad-preview .dpad-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 0;
+  min-height: 0;
+  font-size: 1.1rem;
+  cursor: default;
+}
+
+.hunter-icon {
+  width: 70px;
+  height: auto;
+}
+
 /* ===================================================================
    3) SPIELBILDSCHIRM
    =================================================================== */
@@ -532,6 +590,10 @@ h1, h2 {
 }
 
 .dpad-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   min-width: 48px;
   min-height: 48px;
   width: 56px;

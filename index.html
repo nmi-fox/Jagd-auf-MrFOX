@@ -106,37 +106,71 @@
         <p>Steuere MrFOX durch das Labyrinth und sammle alle Punkte (die kleinen
         Kreise) ein - und zwar bevor du alle 3 Leben verloren hast.</p>
 
-        <h2>Steuerung</h2>
-        <p>Am Desktop bewegst du MrFOX mit den <strong>Pfeiltasten</strong> oder
-        mit <strong>W A S D</strong>. Auf Tablet und Smartphone gibt es später ein
-        Steuerkreuz zum Antippen.</p>
+        <div class="instructions-row">
+          <div class="instructions-row-text">
+            <h2>Steuerung</h2>
+            <p>Am Desktop bewegst du MrFOX mit den <strong>Pfeiltasten</strong> oder
+            mit <strong style="white-space: nowrap;">W A S D</strong>. Auf Tablet und Smartphone erscheint
+            stattdessen ein Steuerkreuz unter dem Spielfeld, das du antippst.</p>
+          </div>
+          <div class="instructions-row-icon dpad-preview" aria-hidden="true">
+            <span class="dpad-btn dpad-up">▲</span>
+            <span class="dpad-btn dpad-left">◀</span>
+            <span class="dpad-btn dpad-right">▶</span>
+            <span class="dpad-btn dpad-down">▼</span>
+          </div>
+        </div>
 
         <h2>Die Punkte</h2>
-        <p>Oben im Spiel siehst du einen Zähler ("Punkte: X / Y"). X ist die
-        Anzahl der bereits eingesammelten Punkte, Y die Gesamtzahl im Labyrinth.
-        Sind alle Punkte eingesammelt, ist das Spiel geschafft. In der Mitte
-        läuft außerdem eine Stoppuhr mit, damit du am Ende siehst, wie lange
-        du gebraucht hast.</p>
+        <p>Oben im Spiel siehst du einen Zähler ("Punkte: X / Y").<br>
+        X ist die Anzahl der bereits eingesammelten Punkte, Y die Gesamtzahl im
+        Labyrinth. Sind alle Punkte eingesammelt, ist das Spiel geschafft. In
+        der Mitte läuft außerdem eine Stoppuhr mit, damit du am Ende siehst,
+        wie lange du gebraucht hast.</p>
 
-        <h2>Das Leben-System</h2>
-        <p>MrFOX hat <strong>3 Leben</strong>, die als rote Herzen oben im Spiel
-        angezeigt werden. Berührt dich ein Jäger, geht ein Herz verloren, du
-        wirst an deine Startposition zurückgesetzt und bist für kurze Zeit
-        unverwundbar (zu erkennen am Blinken). Deine gesammelten Punkte bleiben
-        dabei erhalten. Sind alle 3 Herzen leer, ist das Spiel vorbei.</p>
+        <div class="instructions-row">
+          <div class="instructions-row-text">
+            <h2>Das Leben-System</h2>
+            <p>MrFOX hat <strong>3 Leben</strong>, die als rote Herzen oben im Spiel
+            angezeigt werden. Berührt dich ein Jäger, geht ein Herz verloren, du
+            wirst an deine Startposition zurückgesetzt und bist für kurze Zeit
+            unverwundbar (zu erkennen am Blinken). Deine gesammelten Punkte bleiben
+            dabei erhalten. Sind alle 3 Herzen leer, ist das Spiel vorbei.</p>
+          </div>
+          <div class="instructions-row-icon hearts" aria-hidden="true">
+            <svg viewBox="0 0 32 29" fill="#EC424A" stroke="#EC424A" stroke-width="2.5"><path d="M16 27C16 27 2 18.5 2 9.5C2 4.8 5.8 2 9.5 2C12.5 2 15 4 16 6.5C17 4 19.5 2 22.5 2C26.2 2 30 4.8 30 9.5C30 18.5 16 27 16 27Z"/></svg>
+            <svg viewBox="0 0 32 29" fill="#EC424A" stroke="#EC424A" stroke-width="2.5"><path d="M16 27C16 27 2 18.5 2 9.5C2 4.8 5.8 2 9.5 2C12.5 2 15 4 16 6.5C17 4 19.5 2 22.5 2C26.2 2 30 4.8 30 9.5C30 18.5 16 27 16 27Z"/></svg>
+            <svg viewBox="0 0 32 29" fill="none" stroke="#C9C9C9" stroke-width="2.5"><path d="M16 27C16 27 2 18.5 2 9.5C2 4.8 5.8 2 9.5 2C12.5 2 15 4 16 6.5C17 4 19.5 2 22.5 2C26.2 2 30 4.8 30 9.5C30 18.5 16 27 16 27Z"/></svg>
+          </div>
+        </div>
 
-        <h2>Wie sich die Jäger verhalten</h2>
-        <p>Zu Spielbeginn bekommst du ein paar Sekunden Vorsprung, in denen
-        die Jäger noch stillstehen. Danach berechnen sie bei jedem Zug den
-        kürzesten Weg zu dir durchs Labyrinth und folgen ihm meistens -
-        gelegentlich bewegen sie sich aber auch zufällig, damit du eine faire
-        Chance hast, ihnen zu entkommen.</p>
+        <div class="instructions-row">
+          <div class="instructions-row-text">
+            <h2>Wie sich die Jäger verhalten</h2>
+            <p>Zu Spielbeginn bekommst du ein paar Sekunden Vorsprung, in denen
+            die Jäger noch stillstehen. Danach berechnen sie bei jedem Zug den
+            kürzesten Weg zu dir durchs Labyrinth und folgen ihm meistens -
+            gelegentlich bewegen sie sich aber auch zufällig, damit du eine faire
+            Chance hast, ihnen zu entkommen.</p>
+          </div>
+          <div class="instructions-row-icon" aria-hidden="true">
+            <img src="assets/Jaeger.svg" alt="" class="hunter-icon">
+          </div>
+        </div>
+
+        <h2>Die Top10-Liste</h2>
+        <p>Sammelst du alle Punkte ein, kannst du auf der Ergebnis-Seite einen
+        Spielernamen eintragen und dich in die Top10-Liste einreihen. Damit
+        unterschiedlich große Labyrinthe fair verglichen werden können, zählt
+        dabei nicht die reine Punktzahl, sondern die Punkte pro Sekunde.</p>
 
         <h2>Tipps</h2>
         <p>1. Behalte im Blick, wo sich die Jäger befinden, bevor du dich in eine
         Sackgasse begibst.<br>
         2. Nutze die kurze Unverwundbarkeit nach einem Treffer, um dich in
-        Sicherheit zu bringen.</p>
+        Sicherheit zu bringen.<br>
+        3. Auf Tablet und Smartphone geht es mit dem Steuerkreuz oft schneller,
+        wenn du es mit dem Daumen bedienst statt mit dem Zeigefinger.</p>
 
         <div class="instructions-actions">
           <a id="link-back-start" class="link-back" href="#">← Zurück zur Startseite</a>
