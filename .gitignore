@@ -5,3 +5,7 @@
 # Betriebssystem-/Editor-Dateien
 .DS_Store
 Thumbs.db
+
+# Interne Referenz-Seite (Farben/Buttons/Schrift/Rundungen) - kein Teil
+# des eigentlichen Spiels.
+design-system.html

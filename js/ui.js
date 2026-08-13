@@ -31,6 +31,38 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
   initGame();
 });
 
+// Bestenliste beim allerersten Laden der Seite einmal anzeigen (auf der
+// Ergebnisseite passiert das zusätzlich jedes Mal in endGame(), siehe
+// game.js).
+renderLeaderboardEverywhere();
+
+document.getElementById('btn-save-score').addEventListener('click', async () => {
+  const input = document.getElementById('player-name-input');
+  const saveButton = document.getElementById('btn-save-score');
+  const errorText = document.getElementById('save-score-error');
+  const name = input.value.trim().slice(0, 20) || 'Anonym';
+
+  // Während des Speicherns (echter Netzwerk-Aufruf an Supabase, nicht
+  // mehr sofort wie bei localStorage) den Button deaktivieren, damit
+  // durch Doppelklick nicht zwei Einträge angelegt werden.
+  saveButton.disabled = true;
+  errorText.hidden = true;
+
+  // collectedDots/elapsedMs sind Variablen aus game.js - zu diesem
+  // Zeitpunkt (Klick auf "Speichern" auf der Ergebnisseite) enthalten sie
+  // noch den Endstand des gerade beendeten Spiels.
+  const success = await addLeaderboardEntry(name, collectedDots, elapsedMs);
+
+  if (success) {
+    document.getElementById('leaderboard-entry').hidden = true;
+    await renderLeaderboardEverywhere();
+  } else {
+    // Eintrag bleibt sichtbar, damit man es noch einmal versuchen kann.
+    errorText.hidden = false;
+    saveButton.disabled = false;
+  }
+});
+
 // =====================================================================
 // Rückweg der Hover-Verfolgungsszene auf der Startseite (siehe auch die
 // ".returning"-Regeln in style.css).

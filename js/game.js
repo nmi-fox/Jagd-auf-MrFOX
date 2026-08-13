@@ -224,6 +224,22 @@ function endGame(result) {
 
   document.getElementById('result-title').textContent = title;
   document.getElementById('result-details').textContent = details;
+
+  // Die Namenseingabe für die Top10-Liste gibt es nur nach einem Sieg -
+  // nur dann sind Punkte und Zeit fair mit anderen Läufen vergleichbar
+  // (siehe leaderboard.js), weil dann immer "alle Punkte des Labyrinths"
+  // geschafft wurden.
+  const entryPanel = document.getElementById('leaderboard-entry');
+  if (result === 'win') {
+    document.getElementById('player-name-input').value = '';
+    document.getElementById('btn-save-score').disabled = false;
+    document.getElementById('save-score-error').hidden = true;
+    entryPanel.hidden = false;
+  } else {
+    entryPanel.hidden = true;
+  }
+
+  renderLeaderboardEverywhere();
   showScreen('result');
 }
 

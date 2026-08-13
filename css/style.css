@@ -34,10 +34,20 @@ h1, h2 {
 .screen {
   display: none;
   min-height: 100vh;
-  padding: 2rem 1rem;
-  align-items: center;
+  /* Etwas mehr Platz oben als überall sonst, siehe Kommentar unten. */
+  padding: 4.5rem 1rem 2rem;
+  align-items: flex-start;
   justify-content: center;
 }
+
+/* Von der Bildschirm-Mitte (align-items: center) auf einen festen Abstand
+   von oben (flex-start) umgestellt: Der Inhalt der Start- und der
+   Ergebnisseite wird durch die Bestenliste unterschiedlich hoch (0 bis 10
+   Einträge, Namenseingabe nur nach einem Sieg sichtbar). Bei "vertikal
+   zentriert" würde der ganze Inhalt (und damit auch der fest
+   positionierte Fuchs/Jäger/Baum auf der Startseite) je nach Listenlänge
+   nach oben oder unten "springen". Mit einem festen Abstand von oben
+   bleibt alles an derselben Stelle, unabhängig vom Listeninhalt. */
 
 .screen.active {
   display: flex;
@@ -149,7 +159,7 @@ h1, h2 {
 
 .fox-stage {
   position: fixed;
-  top: 403px;
+  top: 154px;
   left: 50%;
   width: 180px;
   height: 180px;
@@ -206,7 +216,7 @@ h1, h2 {
 
 .tree-img {
   position: fixed;
-  top: 320px;
+  top: 71px;
   right: 16px;
   height: 240px;
   width: auto;
@@ -216,7 +226,7 @@ h1, h2 {
 
 .ambush-hunter {
   position: fixed;
-  top: 410px;
+  top: 161px;
   right: 108px;
   height: 150px;
   width: auto;
@@ -258,7 +268,7 @@ h1, h2 {
    passend zur (linearen) Laufzeit des Fuchses zu genau dieser Stelle. */
 .trail-dots {
   position: fixed;
-  top: 528px;
+  top: 279px;
   left: 0;
   width: 100vw;
   height: 0;
@@ -461,4 +471,132 @@ h1, h2 {
 #result-details {
   font-size: 1.15rem;
   margin: 0 0 0.5rem;
+}
+
+/* ===================================================================
+   TOP10-BESTENLISTE (sichtbar auf Startseite + Ergebnisseite)
+   =================================================================== */
+.leaderboard-panel {
+  width: 420px;
+  max-width: 100%;
+  margin-top: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--cream);
+  border-radius: 16px;
+}
+
+.leaderboard-title {
+  margin: 0 0 0.15rem;
+  font-size: 1.1rem;
+  color: var(--navy);
+  text-align: center;
+}
+
+.leaderboard-subtitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.65;
+  text-align: center;
+}
+
+.leaderboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto auto auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(54, 92, 138, 0.15);
+  font-size: 0.9rem;
+}
+
+.leaderboard-row:last-child {
+  border-bottom: none;
+}
+
+.leaderboard-rank {
+  font-weight: 700;
+  color: var(--navy);
+  text-align: right;
+}
+
+.leaderboard-name {
+  font-weight: 600;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-rate {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--fox-orange);
+}
+
+.leaderboard-points,
+.leaderboard-time {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.leaderboard-empty {
+  text-align: center;
+  font-style: italic;
+  color: var(--text-color);
+  opacity: 0.7;
+  padding: 0.4rem 0;
+}
+
+/* Namenseingabe - steckt in derselben Karte wie die Liste (kein eigener
+   Kasten, siehe .leaderboard-panel), nur ein dezenter Trennstrich darunter.
+   Nur nach einem Sieg sichtbar, siehe endGame() in game.js. */
+.leaderboard-entry {
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(54, 92, 138, 0.15);
+  text-align: center;
+}
+
+.leaderboard-hint {
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+}
+
+.leaderboard-entry-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.leaderboard-error {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: var(--heart-red);
+}
+
+#player-name-input {
+  min-width: 180px;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  border: 2px solid var(--navy);
+  background: var(--bg-light);
+  color: var(--text-color);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+#player-name-input:focus {
+  outline: none;
+  border-color: var(--fox-orange);
 }
