@@ -225,6 +225,18 @@ function endGame(result) {
   document.getElementById('result-title').textContent = title;
   document.getElementById('result-details').textContent = details;
 
+  // Bei einem Sieg feiert MrFOX mit Konfetti, statt einfach nur zu laufen.
+  const resultFoxImg = document.getElementById('result-fox-img');
+  if (result === 'win') {
+    resultFoxImg.src = 'assets/MrFOX_confetti.svg';
+    resultFoxImg.alt = 'MrFOX freut sich und wirft Konfetti';
+    resultFoxImg.classList.add('is-confetti');
+  } else {
+    resultFoxImg.src = 'assets/MrFOX_walk.svg';
+    resultFoxImg.alt = 'MrFOX';
+    resultFoxImg.classList.remove('is-confetti');
+  }
+
   // Die Namenseingabe für die Top10-Liste gibt es nur nach einem Sieg -
   // nur dann sind Punkte und Zeit fair mit anderen Läufen vergleichbar
   // (siehe leaderboard.js), weil dann immer "alle Punkte des Labyrinths"
@@ -446,10 +458,33 @@ const KEY_DIRECTIONS = {
   D: { dx: 1, dy: 0 }
 };
 
-document.addEventListener('keydown', (event) => {
+// Von Tastatur UND Steuerkreuz genutzt, damit die Richtungs-Logik nur an
+// einer Stelle steht.
+function setDesiredDirection(dx, dy) {
   if (!gameActive) return;
+  player.desiredDir = { dx, dy };
+}
+
+document.addEventListener('keydown', (event) => {
+  if (!gameActive) return; // wichtig: VOR preventDefault(), siehe unten
   const dir = KEY_DIRECTIONS[event.key];
   if (!dir) return;
   event.preventDefault(); // verhindert, dass die Seite mit den Pfeiltasten scrollt
-  player.desiredDir = dir;
+  setDesiredDirection(dir.dx, dir.dy);
 });
+
+// ---------------------------------------------------------------------
+// Steuerkreuz (Touch) - per CSS nur auf Geräten mit "pointer: coarse"
+// sichtbar (siehe .dpad in style.css); dieser Listener läuft harmlos
+// auch auf dem Desktop mit, ein "pointerdown" kann auf einem
+// unsichtbaren ("display: none") Element aber nie feuern.
+// ---------------------------------------------------------------------
+const dpad = document.querySelector('.dpad');
+if (dpad) {
+  dpad.addEventListener('pointerdown', (event) => {
+    const btn = event.target.closest('.dpad-btn');
+    if (!btn) return;
+    event.preventDefault();
+    setDesiredDirection(Number(btn.dataset.dx), Number(btn.dataset.dy));
+  });
+}

@@ -22,8 +22,19 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
 });
 
 document.getElementById('btn-play').addEventListener('click', () => {
-  showScreen('game');
-  initGame();
+  // Auf Touch-Geräten kurz warten, damit man die "wacht auf"-Animation
+  // (siehe .touch-awake weiter unten) noch sieht, bevor der Screen
+  // wechselt - auf dem Desktop läuft man sonst durch das schnelle
+  // Klicken direkt "durch" die Animation.
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    setTimeout(() => {
+      showScreen('game');
+      initGame();
+    }, 180);
+  } else {
+    showScreen('game');
+    initGame();
+  }
 });
 
 document.getElementById('btn-play-again').addEventListener('click', () => {
@@ -95,4 +106,17 @@ if (startPlayBtn && chaseDecor && window.matchMedia('(hover: hover) and (pointer
       chaseDecor.classList.remove('returning');
     }, RETURN_DURATION_MS);
   });
+}
+
+// =====================================================================
+// Touch-Variante der Hover-Animation: Baum, Jäger und die Punkte gibt es
+// auf Touch-Geräten gar nicht erst (siehe die "display: none;"-Basis-
+// Regeln in style.css) - hier löst ein Antippen des Buttons nur die
+// einfache "wacht auf"-Animation aus (schlafend → laufend + Bounce),
+// ganz ohne Lauf-Choreografie zum Bildschirmrand.
+// =====================================================================
+if (startPlayBtn && chaseDecor && window.matchMedia('(pointer: coarse)').matches) {
+  startPlayBtn.addEventListener('touchstart', () => {
+    chaseDecor.classList.add('touch-awake');
+  }, { passive: true });
 }
