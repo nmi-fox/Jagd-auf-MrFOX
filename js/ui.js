@@ -16,6 +16,11 @@ document.getElementById('link-back-start').addEventListener('click', (event) => 
   showScreen('start');
 });
 
+document.getElementById('link-back-result').addEventListener('click', (event) => {
+  event.preventDefault();
+  showScreen('start');
+});
+
 document.getElementById('btn-start-game').addEventListener('click', () => {
   showScreen('game');
   initGame();
