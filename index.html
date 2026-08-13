@@ -71,6 +71,14 @@
       </div>
 
       <button id="btn-instructions" class="btn btn-secondary" type="button">Anleitung</button>
+
+      <!-- Bestenliste: nur zum Anschauen, keine Eingabe hier (die gibt es
+           nur auf der "Geschafft!"-Seite, siehe unten). -->
+      <div class="leaderboard-panel">
+        <h2 class="leaderboard-title">Top 10</h2>
+        <p class="leaderboard-subtitle">sortiert nach Tempo (Punkte/Sek)</p>
+        <ul class="leaderboard-list" id="leaderboard-list-start"></ul>
+      </div>
     </div>
   </section>
 
@@ -149,12 +157,35 @@
       </div>
       <h1 id="result-title"></h1>
       <p id="result-details"></p>
+
+      <!-- Namenseingabe + Top10-Liste stecken bewusst in EINER gemeinsamen
+           Karte (nicht in zwei getrennten Kästen), damit die Seite ruhiger
+           wirkt. Die Eingabe ist nur nach einem Sieg sichtbar (siehe
+           endGame() in game.js), damit nur "saubere" Läufe (alle Punkte
+           geschafft) in die Bestenliste kommen - Zeit und Punkte sind
+           sonst schwer vergleichbar. -->
+      <div class="leaderboard-panel">
+        <div id="leaderboard-entry" class="leaderboard-entry" hidden>
+          <p class="leaderboard-hint">Gib dir einen Spielernamen für die Top10-Liste:</p>
+          <div class="leaderboard-entry-row">
+            <input type="text" id="player-name-input" maxlength="20" placeholder="Dein Name">
+            <button id="btn-save-score" class="btn btn-secondary" type="button">Speichern</button>
+          </div>
+          <p id="save-score-error" class="leaderboard-error" hidden>Speichern hat nicht geklappt - bitte noch mal versuchen.</p>
+        </div>
+
+        <h2 class="leaderboard-title">Top 10</h2>
+        <p class="leaderboard-subtitle">sortiert nach Tempo (Punkte/Sek)</p>
+        <ul class="leaderboard-list" id="leaderboard-list-result"></ul>
+      </div>
+
       <button id="btn-play-again" class="btn btn-primary" type="button">Nochmal spielen</button>
     </div>
   </section>
 
   <script src="js/maze.js"></script>
   <script src="js/hunters.js"></script>
+  <script src="js/leaderboard.js"></script>
   <script src="js/game.js"></script>
   <script src="js/ui.js"></script>
 </body>
