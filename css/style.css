@@ -53,6 +53,16 @@ h1, h2 {
   display: flex;
 }
 
+/* Ohne das hier würde Flexbox seinen Kindern (Start-/Ergebnis-/Anleitungs-
+   /Spiel-Inhalt) eine unsichtbare Mindestbreite ("min-width: auto")
+   geben, die z.B. durch das Canvas oder lange HUD-Texte bestimmt wird -
+   das würde auf schmalen Bildschirmen die Seite aufblähen, noch bevor
+   irgendeine %/max-width-Regel eines Kind-Elements greifen kann. Auf
+   Desktop ändert das nichts. */
+.screen > * {
+  min-width: 0;
+}
+
 /* ===================================================================
    Buttons (gemeinsame Basis für alle Screens)
    =================================================================== */
@@ -129,9 +139,12 @@ h1, h2 {
   gap: 0.5rem;
 }
 
-/* Reserviert im normalen Seitenfluss denselben Platz, den der Fuchs
-   (jetzt fest positioniert, siehe .fox-stage) früher eingenommen hat. */
+/* Auf Touch-Geräten steht der Fuchs ganz normal im Textfluss (siehe
+   .fox-stage Basis-Regel unten), deshalb wird hier kein Platz reserviert.
+   Nur wenn die volle Desktop-Szene aktiv ist (Fuchs fest positioniert),
+   braucht es diesen Platzhalter - siehe die Media Query weiter unten. */
 .fox-stage-spacer {
+  display: none;
   width: 180px;
   height: 180px;
 }
@@ -143,30 +156,37 @@ h1, h2 {
    aber direkte Geschwister von #btn-play (wichtig für den Selektor
    "#btn-play:hover ~ .chase-decor ..." weiter unten).
 
-   Alle vier liegen per "position: fixed" über der ganzen Seite:
-   - Der Baum steht immer fest am rechten Bildschirmrand.
-   - Der Jäger steht im Ruhezustand halb hinter dem Baum versteckt.
-   - Der Fuchs steht im Ruhezustand zentriert über dem Button.
-   - Die Punkte liegen auf dem Weg, den der Fuchs beim Hover abläuft.
-
-   Beim Hover über den Button läuft der Fuchs zum linken Bildschirmrand,
-   der Jäger folgt ihm von rechts (bleibt aber zurück), und die Punkte
-   werden dabei - passend zur Laufzeit - nacheinander "eingesammelt".
+   WICHTIG - zwei ganz unterschiedliche Varianten:
+   - Auf Touch-Geräten (kein echtes Maus-Hover, siehe .touch-awake weiter
+     unten): nur der Fuchs ist zu sehen, ganz normal im Textfluss, und
+     macht ausschließlich die einfache "wacht auf"-Animation (schlafend
+     → laufend + kurzer Bounce) beim Antippen des Buttons. Baum, Jäger
+     und Punkte werden dafür komplett ausgeblendet (display:none) - die
+     ganze Lauf-Choreografie zum Bildschirmrand gibt es dort nicht.
+   - Auf Geräten mit echtem Maus-Hover (siehe die
+     "@media (hover: hover) and (pointer: fine)"-Regel weiter unten):
+     hier gilt weiterhin die volle, unverändert bestehende Szene - Baum
+     und Jäger werden sichtbar, alle vier liegen per "position: fixed"
+     über der ganzen Seite, und beim Hover läuft der Fuchs zum linken
+     Bildschirmrand, der Jäger folgt ihm von rechts (bleibt aber
+     zurück), die Punkte werden dabei nacheinander "eingesammelt".
    =================================================================== */
 .chase-decor {
   display: contents;
 }
 
+/* Basis (Touch/Standard): normale Box im Textfluss. "order: -1" sorgt
+   dafür, dass der Fuchs trotz seiner Position im HTML (nach #btn-play)
+   visuell trotzdem ÜBER dem Button erscheint - #btn-play und .fox-stage
+   sind durch "display: contents" auf .chase-decor beide direkte
+   Flex-Kinder von .hero, "order" kann sie also frei umsortieren, ohne
+   das HTML anfassen zu müssen (das HTML muss unverändert bleiben, damit
+   der Selektor "#btn-play:hover ~ .chase-decor ..." weiter funktioniert). */
 .fox-stage {
-  position: fixed;
-  top: 154px;
-  left: 50%;
+  position: relative;
+  order: -1;
   width: 180px;
   height: 180px;
-  transform: translateX(-50%);
-  transition: left 1.5s linear, transform 1.5s linear;
-  z-index: 6;
-  pointer-events: none;
 }
 
 /* Eigener innerer Wrapper nur für den Aufwach-Bounce (siehe fox-bounce
@@ -214,7 +234,11 @@ h1, h2 {
   opacity: 0;
 }
 
+/* Auf Touch-Geräten komplett unsichtbar (siehe Kommentar weiter oben) -
+   erscheint nur in der "@media (hover: hover) and (pointer: fine)"-Regel
+   weiter unten wieder. */
 .tree-img {
+  display: none;
   position: fixed;
   top: 71px;
   right: 16px;
@@ -225,6 +249,7 @@ h1, h2 {
 }
 
 .ambush-hunter {
+  display: none;
   position: fixed;
   top: 161px;
   right: 108px;
@@ -261,12 +286,31 @@ h1, h2 {
   transform: scaleX(-1);
 }
 
+/* Touch-Variante der Hover-Animation: js/ui.js setzt diese Klasse bei
+   Antippen des Buttons (statt Hover). Nur die einfache "wacht auf"-
+   Animation - kein Baum, kein Jäger, keine Punkte, kein Lauf zum
+   Bildschirmrand. Nutzt dieselbe fox-bounce-Animation wie die
+   Desktop-Variante weiter unten. */
+.chase-decor.touch-awake .fox-sleep {
+  opacity: 0;
+}
+
+.chase-decor.touch-awake .fox-walk {
+  opacity: 1;
+}
+
+.chase-decor.touch-awake .fox-bounce-wrap {
+  animation: fox-bounce 0.5s ease;
+}
+
 /* Der Weg aus 7 Punkten, den der Fuchs beim Hover nach links abläuft.
    Jeder Punkt blendet sich langsam ein und wird exakt in dem Moment
    "eingesammelt" (siehe @keyframes dot-collect), in dem der Fuchs ihn
    erreicht - deshalb hat jeder Punkt seine eigene "animation-duration",
-   passend zur (linearen) Laufzeit des Fuchses zu genau dieser Stelle. */
+   passend zur (linearen) Laufzeit des Fuchses zu genau dieser Stelle.
+   Auf Touch-Geräten komplett unsichtbar, siehe Kommentar weiter oben. */
 .trail-dots {
+  display: none;
   position: fixed;
   top: 279px;
   left: 0;
@@ -296,9 +340,32 @@ h1, h2 {
 .dot-6 { left: 10%; animation-duration: 1.30s; }
 .dot-7 { left: 5%;  animation-duration: 1.47s; }
 
-/* Hover-Effekt nur auf Geräten mit echtem Maus-Hover aktivieren
-   (Touch-Variante folgt in einem späteren Schritt). */
+/* Hover-Effekt nur auf Geräten mit echtem Maus-Hover aktivieren - hier
+   wird die volle Desktop-Szene (Baum/Jäger/Punkte + fest positionierter,
+   laufender Fuchs) wieder eingeschaltet, die weiter oben für Touch-
+   Geräte per "display: none;" ausgeblendet wurde. Die Touch-Variante
+   (nur die einfache Aufwach-Animation, siehe .chase-decor.touch-awake)
+   bleibt davon komplett unberührt. */
 @media (hover: hover) and (pointer: fine) {
+  .fox-stage-spacer,
+  .tree-img,
+  .ambush-hunter,
+  .trail-dots {
+    display: block;
+  }
+
+  /* Ruhezustand: Fuchs zentriert und fest positioniert über der ganzen
+     Seite (statt normal im Textfluss wie auf Touch-Geräten). */
+  .fox-stage {
+    position: fixed;
+    top: 154px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 1.5s linear, transform 1.5s linear;
+    z-index: 6;
+    pointer-events: none;
+  }
+
   #btn-play:hover ~ .chase-decor .fox-stage {
     left: 4%;
     transform: translateX(0);
@@ -442,6 +509,57 @@ h1, h2 {
   border: 4px solid var(--navy);
   border-radius: 8px;
   display: block;
+  /* Die interne Zeichenfläche bleibt immer 544x416px (17x13 Kacheln,
+     siehe initGame() in game.js) - diese Regel skaliert nur die
+     ANZEIGE-Größe auf schmalen Bildschirmen herunter, ohne dass sich an
+     der Spiellogik (die in Kachel-Koordinaten rechnet) irgendetwas
+     ändern müsste. */
+  width: 100%;
+  max-width: 544px;
+  height: auto;
+  aspect-ratio: 544 / 416;
+}
+
+/* Steuerkreuz für Touch-Geräte - im Textfluss unter dem Canvas (nutzt
+   den bestehenden "gap" von .game-content), auf dem Desktop per
+   "pointer: coarse" komplett ausgeblendet, da dort die Tastatur reicht. */
+.dpad {
+  display: none;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.dpad-btn {
+  min-width: 48px;
+  min-height: 48px;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  border: none;
+  background: var(--navy);
+  color: var(--cream);
+  font-size: 1.4rem;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dpad-btn:active {
+  background: var(--fox-orange);
+  transform: scale(0.95);
+}
+
+.dpad-up { grid-column: 2; grid-row: 1; }
+.dpad-left { grid-column: 1; grid-row: 2; }
+.dpad-right { grid-column: 3; grid-row: 2; }
+.dpad-down { grid-column: 2; grid-row: 3; }
+
+@media (pointer: coarse) {
+  .dpad {
+    display: grid;
+  }
 }
 
 /* ===================================================================
@@ -456,11 +574,21 @@ h1, h2 {
 }
 
 .result-fox {
-  width: 220px;
+  /* Skaliert stufenlos zwischen 140px (schmale Handys) und 220px
+     (Tablet/Desktop) - kein eigener Breakpoint nötig. */
+  width: clamp(140px, 50vw, 220px);
 }
 
 .result-fox img {
   width: 100%;
+}
+
+/* MrFOX_confetti.svg ist im Gegensatz zu MrFOX_walk.svg hochformatig
+   (steht aufrecht statt zu laufen) - bei voller Breite wäre er dadurch
+   viel zu groß. Deshalb hier schmaler, siehe endGame() in game.js, das
+   diese Klasse beim Sieg setzt. */
+.result-fox img.is-confetti {
+  width: 60%;
 }
 
 #result-title {
@@ -599,4 +727,31 @@ h1, h2 {
 #player-name-input:focus {
   outline: none;
   border-color: var(--fox-orange);
+}
+
+/* ===================================================================
+   RESPONSIVE: schmale Bildschirme (Smartphone, ~360-480px)
+   =================================================================== */
+@media (max-width: 480px) {
+  .screen {
+    padding: 3.25rem 0.75rem 1.5rem;
+  }
+
+  .game-title {
+    font-size: 2rem;
+  }
+
+  .leaderboard-panel {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .leaderboard-row {
+    grid-template-columns: 1.4rem 1fr auto auto auto;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  #player-name-input {
+    min-width: 140px;
+  }
 }
