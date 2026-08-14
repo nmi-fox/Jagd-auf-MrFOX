@@ -79,7 +79,19 @@ function generateMaze() {
     }
   }
 
+  // Die Start-Ecke von MrFOX hat bei einer klassischen Tiefensuche fast
+  // immer nur EINEN Ausgang (typische Eigenschaft des Algorithmus an
+  // Ecken - der zweite mögliche Nachbar ist durch die Rekursion meist
+  // schon von anderswo besucht und wird daher hier nicht verbunden).
+  // Ohne Gegenmaßnahme hätte MrFOX dann keine Wahl, sondern nur einen
+  // einzigen Weg - läuft der geradewegs zu einem Jäger, gibt es keine
+  // Ausweichmöglichkeit. Deshalb werden hier beide möglichen Wege aus
+  // der Start-Ecke (nach rechts und nach unten) fest geöffnet, damit
+  // von Anfang an garantiert eine echte Abzweigung existiert.
   const playerStart = cellToGrid(0, 0);
+  grid[playerStart.row][playerStart.col + 1] = true;
+  grid[playerStart.row + 1][playerStart.col] = true;
+
   const hunterStarts = [
     cellToGrid(CELLS_X - 1, 0),
     cellToGrid(0, CELLS_Y - 1),
