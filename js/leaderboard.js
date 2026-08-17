@@ -30,6 +30,12 @@ const SUPABASE_TABLE = 'highscores';
 
 const LEADERBOARD_MAX_ENTRIES = 10;
 
+// n8n-Webhook, der bei einem neuen Highscore-Eintrag eine E-Mail-
+// Benachrichtigung auslöst. Produktions-URL - setzt voraus, dass der
+// n8n-Workflow veröffentlicht ("Publish") und damit dauerhaft aktiv ist,
+// nicht nur über "Listen for test event" im Editor.
+const N8N_HIGHSCORE_WEBHOOK_URL = 'https://nmi-fox.app.n8n.cloud/webhook/Highscore-Info';
+
 function supabaseHeaders() {
   return {
     apikey: SUPABASE_KEY,
@@ -87,11 +93,31 @@ async function addLeaderboardEntry(name, points, timeMs) {
       body: JSON.stringify(body),
     });
     if (!response.ok) throw new Error(`Supabase antwortete mit Status ${response.status}`);
+    notifyHighscoreWebhook(name, points, timeMs);
     return true;
   } catch (error) {
     console.error('Punktestand konnte nicht gespeichert werden:', error);
     return false;
   }
+}
+
+// Meldet n8n "nebenbei" (fire-and-forget) den neuen Eintrag. Schlägt das
+// fehl (z.B. weil der Test-Webhook gerade nicht auf "Listen for test
+// event" steht), soll das den eigentlichen Speichervorgang in Supabase
+// NICHT als fehlgeschlagen erscheinen lassen - die Bestenliste ist die
+// eigentliche Funktion, die E-Mail-Benachrichtigung nur ein Extra.
+function notifyHighscoreWebhook(name, points, timeMs) {
+  fetch(N8N_HIGHSCORE_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name,
+      points,
+      timeSeconds: Math.floor(timeMs / 1000),
+    }),
+  }).catch((error) => {
+    console.error('n8n-Webhook konnte nicht benachrichtigt werden:', error);
+  });
 }
 
 function formatLeaderboardTime(ms) {
