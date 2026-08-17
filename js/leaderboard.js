@@ -93,7 +93,21 @@ async function addLeaderboardEntry(name, points, timeMs) {
       body: JSON.stringify(body),
     });
     if (!response.ok) throw new Error(`Supabase antwortete mit Status ${response.status}`);
-    notifyHighscoreWebhook(name, points, timeMs);
+
+    // Für die E-Mail-Benachrichtigung ist es schöner, den Platz in der
+    // (aktuellen) Top10 mitzuschicken. Dafür die Liste direkt danach neu
+    // laden - der gerade gespeicherte Eintrag ist zu diesem Zeitpunkt schon
+    // enthalten, sofern er es überhaupt in die Top10 geschafft hat - und
+    // per Name/Punkte/Zeit den passenden Eintrag heraussuchen. Schafft er
+    // es nicht in die Top10, bleibt "rank" einfach leer (null).
+    const list = await fetchLeaderboard();
+    const timeSeconds = Math.floor(timeMs / 1000);
+    const index = list
+      ? list.findIndex((entry) => entry.name === name && entry.points === points && entry.timeMs === timeSeconds * 1000)
+      : -1;
+    const rank = index === -1 ? null : index + 1;
+
+    notifyHighscoreWebhook(name, points, timeMs, rank);
     return true;
   } catch (error) {
     console.error('Punktestand konnte nicht gespeichert werden:', error);
@@ -102,11 +116,10 @@ async function addLeaderboardEntry(name, points, timeMs) {
 }
 
 // Meldet n8n "nebenbei" (fire-and-forget) den neuen Eintrag. Schlägt das
-// fehl (z.B. weil der Test-Webhook gerade nicht auf "Listen for test
-// event" steht), soll das den eigentlichen Speichervorgang in Supabase
-// NICHT als fehlgeschlagen erscheinen lassen - die Bestenliste ist die
-// eigentliche Funktion, die E-Mail-Benachrichtigung nur ein Extra.
-function notifyHighscoreWebhook(name, points, timeMs) {
+// fehl, soll das den eigentlichen Speichervorgang in Supabase NICHT als
+// fehlgeschlagen erscheinen lassen - die Bestenliste ist die eigentliche
+// Funktion, die E-Mail-Benachrichtigung nur ein Extra.
+function notifyHighscoreWebhook(name, points, timeMs, rank) {
   fetch(N8N_HIGHSCORE_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -114,6 +127,7 @@ function notifyHighscoreWebhook(name, points, timeMs) {
       name,
       points,
       timeSeconds: Math.floor(timeMs / 1000),
+      rank, // 1-10 = Platz in der Top10, null = hat es nicht in die Top10 geschafft
     }),
   }).catch((error) => {
     console.error('n8n-Webhook konnte nicht benachrichtigt werden:', error);
