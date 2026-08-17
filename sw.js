@@ -1,14 +1,18 @@
 // =====================================================================
 // sw.js - Service Worker: macht "Jagd auf MrFOX" offline spielbar.
 //
-// WICHTIG für zukünftige Änderungen: Es gibt hier kein Build-System, das
-// automatisch merkt, wenn sich eine Datei geändert hat. Wenn du eine der
-// unten aufgeführten Dateien änderst, musst du CACHE_VERSION per Hand
-// hochzählen (z.B. "v1" -> "v2") - sonst bekommen Besucher:innen weiter
-// die alte, im Cache gespeicherte Version ausgeliefert.
+// Strategie: "Network-first mit Cache-Fallback" (siehe fetch-Handler
+// unten) - bei bestehender Verbindung wird IMMER die aktuelle Version
+// vom Server geladen (und der Cache dabei nebenbei aktualisiert), nur
+// wenn das fehlschlägt (z.B. offline), springt der Cache als Fallback
+// ein. So kommen Änderungen an den unten aufgeführten Dateien automatisch
+// bei allen Besucher:innen an, ohne dass CACHE_VERSION von Hand
+// hochgezählt werden müsste (das war vorher nötig und wurde leicht
+// vergessen - mehrere Updates kamen dadurch bei wiederkehrenden
+// Besucher:innen nie an).
 // =====================================================================
 
-const CACHE_VERSION = 'foxhunt-cache-v1';
+const CACHE_VERSION = 'foxhunt-cache-v2';
 
 const PRECACHE_URLS = [
   './',
@@ -64,14 +68,12 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(event.request).then((response) => {
+    fetch(event.request)
+      .then((response) => {
         const responseClone = response.clone();
         caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, responseClone));
         return response;
-      });
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
